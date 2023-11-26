@@ -1,5 +1,5 @@
 from sympy import symbols, Eq, solve
-
+from constants import l_1, l_2, l_3, l_4, m_1, m_2, m_3, m_4
 
 eq = '''
 (2m_1 +m_3)x_2010 =l_1x_1010 + l_3x_2000
@@ -108,25 +108,6 @@ x_1 + x_2 + x_3 + x_4 + x_5 + x_6 + x_7 + x_8 + x_9 + x_10 + x_11 + x_12 + x_13 
 # Define the variables
 x = symbols('x(1:19)')
 print(x)
-
-# Define the coefficients
-# l_1 = 24
-# l_2 = 0.504
-# l_3 = 0.144
-# l_4 = 0.072
-# m_1 = 0.167
-# m_2 = 0.05
-# m_3 = 0.05
-# m_4 = 0.05
-# -----------------------
-l_1 = 24
-l_2 = 0.504
-l_3 = 0.144
-l_4 = 0.072
-m_1 = 3.6
-m_2 = 0.72
-m_3 = 0.72
-m_4 = 0.72
 
 # Define the equations
 
