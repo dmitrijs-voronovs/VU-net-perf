@@ -1,4 +1,4 @@
-from constants import K, C, l, m, b, states
+from constants import K, C, l, d, b
 from utils import printItem
 
 memo = {}
@@ -12,7 +12,7 @@ def g(c):
     if (c in memo):
         return memo[c]
 
-    total = sum([b[j] * l[j] * m[j] * g(c - b[j]) for j in range(K)])
+    total = sum([b[j] * l[j] * d[j] * g(c - b[j]) for j in range(K)])
     res = 1 / c * total
     memo[c] = res
     return res

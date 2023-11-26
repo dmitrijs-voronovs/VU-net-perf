@@ -1,12 +1,12 @@
 import math
 import numpy as np
-from constants import N, l, m, b, d, states
+from constants import N, K, l, b, d, states
 from utils import printItem
 
 
 def productForm(state):
     res = 1
-    for i in range(4):
+    for i in range(K):
         res *= ((l[i] * d[i]) ** state[i]) / math.factorial(state[i])
     return res
 
