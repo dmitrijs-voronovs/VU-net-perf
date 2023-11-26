@@ -1,5 +1,6 @@
 from sympy import symbols, Eq, solve
 from constants import l_1, l_2, l_3, l_4, m_1, m_2, m_3, m_4
+from utils import printItem
 
 eq = '''
 (2m_1 +m_3)x_2010 =l_1x_1010 + l_3x_2000
@@ -148,7 +149,7 @@ for i in range(len(solutions)):
 
 for i in range(len(solutions)):
     pi = ", ".join(list(map(str, reverse_conversion.get(str(i+1)))))
-    print(f"pi({pi}) = {solutions[x[i]]}")
+    printItem(f"\pi({pi}) = {solutions[x[i]]}")
 
 
 res = '''

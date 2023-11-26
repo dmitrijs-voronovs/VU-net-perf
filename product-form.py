@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from constants import N, l, m, b, states
+from utils import printItem
 
 
 def productForm(state):
@@ -21,7 +22,7 @@ probabilities = {}
 for state in states:
     res = productForm(state) / G
     total += res
-    print(f"pi{state} = {res}")
+    printItem(f"\pi{state} = {res}")
     probabilities[state] = res
 
 print(f"total = {total}")
@@ -39,7 +40,7 @@ def blockingProb(n):
 
 
 for i in range(4):
-    print(f"blockingProb({i}) = {blockingProb(i)}")
+    printItem(f"blockingProb({i}) = {blockingProb(i)}")
 
 blockProbRes = '''
 blockingProb(0) = 0.20438212315335313
