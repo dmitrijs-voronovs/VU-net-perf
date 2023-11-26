@@ -1,13 +1,13 @@
 import math
 import numpy as np
-from constants import C, l, m, b, states
+from constants import N, l, m, b, d, states
 from utils import printItem
 
 
 def productForm(state):
     res = 1
     for i in range(4):
-        res *= ((l[i] * m[i]) ** state[i]) / math.factorial(state[i])
+        res *= ((l[i] * d[i]) ** state[i]) / math.factorial(state[i])
     return res
 
 
@@ -32,7 +32,7 @@ print(f"total = {total}")
 
 def blockingProb(n):
     res = 0
-    remaining = C - b[n]
+    remaining = N - b[n]
     for state in states:
         if (np.dot(list(state), b) <= remaining):
             res += probabilities[state]
