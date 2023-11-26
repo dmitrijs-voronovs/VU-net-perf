@@ -1,4 +1,4 @@
-N = K = 5
+K = 4
 C = 5
 
 # Define the coefficients

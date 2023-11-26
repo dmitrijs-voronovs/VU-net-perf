@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from constants import N, l, m, b, states
+from constants import C, l, m, b, states
 from utils import printItem
 
 
@@ -32,7 +32,7 @@ print(f"total = {total}")
 
 def blockingProb(n):
     res = 0
-    remaining = N - b[n]
+    remaining = C - b[n]
     for state in states:
         if (np.dot(list(state), b) <= remaining):
             res += probabilities[state]
