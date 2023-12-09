@@ -237,11 +237,3 @@ print_transfer_times(file_sizes)
 
 # task 11
 
-
-# Assuming the transfer starts with a three-way handshake and progresses entirely through Slow Start, the total transfer time (T) can be expressed as:
-# 
-# $$ T = \text{RTT} \times \left( \frac{\text{Segments} - \text{Initial_Window}}{\text{Initial_Window}} + 1 \right) $$
-# 
-# $$ T = \text{RTT} \times \left( \frac{\frac{F}{M} - \text{Initial_Window}}{\text{Initial_Window}} + 1 \right) $$
-# 
-# This formula represents the transfer time in Slow Start, including the three-way handshake, in terms of the file size, RTT, MSS, and server processing time, considering an initial congestion window size. Adjust the parameters and initial window size as needed for specific scenarios or conditions.
