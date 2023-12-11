@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[3]:
+# In[2]:
 
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-# In[4]:
+# In[3]:
 
 
 # 1
@@ -18,13 +18,16 @@ traffic[15:21] = 8
 traffic[25:46] = 2.5
 
 
-# In[5]:
+# In[16]:
 
 
 plt.step(range(len(traffic)), traffic, where='post', color='blue')
+plt.title('Traffic over Time')
+plt.xlabel('Time')
+plt.ylabel('Bitrate (Mbit/s)')
 
 
-# In[7]:
+# In[13]:
 
 
 # task 2
@@ -42,7 +45,7 @@ def calculate_delay(traffic, shaping_rate):
     return delay
 
 def plot_delay(delay):
-    plt.plot(range(len(delay)), delay, color='red')
+    plt.step(range(len(delay)), delay, color='red')
     plt.xlabel('Time')
     plt.ylabel('Delay (ms)')
     plt.title('Delay Induced by Shaper over Time')
@@ -54,7 +57,7 @@ delay = calculate_delay(traffic, shaping_rate)
 plot_delay(delay)
 
 
-# In[8]:
+# In[14]:
 
 
 # task 3
@@ -71,7 +74,7 @@ def get_shaped_traffic(traffic, shaping_rate):
     return shaped_traffic
 
 def plot_shaped_traffic(traffic, shaped_traffic):
-    plt.plot(range(len(traffic)), shaped_traffic, color='green')
+    plt.step(range(len(traffic)), shaped_traffic, color='green')
     plt.xlabel('Time')
     plt.ylabel('Bitrate (Mbit/s)')
     plt.title('Bitrate of Traffic after Shaping over Time')
@@ -83,18 +86,18 @@ shaped_traffic = get_shaped_traffic(traffic, shaping_rate)
 plot_shaped_traffic(traffic, shaped_traffic)
 
 
-# In[9]:
+# In[17]:
 
 
 # task 4
-shaping_rate = 4
+shaping_rate = 2
 delay = calculate_delay(traffic, shaping_rate)
 plot_delay(delay)
 shaped_traffic = get_shaped_traffic(traffic, shaping_rate)
 plot_shaped_traffic(traffic, shaped_traffic)
 
 
-# In[10]:
+# In[19]:
 
 
 # task 5
@@ -113,7 +116,7 @@ def apply_policing(traffic, leak_rate, burst_tolerance):
     return policed_traffic
 
 def plot_policed_traffic(traffic, policed_traffic):
-    plt.plot(range(len(traffic)), policed_traffic, color='orange')
+    plt.step(range(len(traffic)), policed_traffic, color='orange')
     plt.xlabel('Time')
     plt.ylabel('Bitrate (Mbit/s)')
     plt.title('Bitrate of Traffic after Policing over Time')
@@ -127,7 +130,7 @@ policed_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
 plot_policed_traffic(traffic, policed_traffic)
 
 
-# In[11]:
+# In[20]:
 
 
 # task 6
@@ -164,7 +167,7 @@ policed_traffic = apply_sla_policing(traffic, leak_rate, burst_tolerance)
 plot_sla_compliance(traffic, policed_traffic)
 
 
-# In[20]:
+# In[21]:
 
 
 # task 7
