@@ -154,6 +154,9 @@ plot_conforming_v_nonconforming_traffic(conforming_traffic, nonconforming_traffi
 
 
 import math
+
+# task 8
+
 def ceildiv(a, b):
     return -(-a // b)
 
@@ -168,9 +171,6 @@ def transfer_time(fs, cw_start, rtt):
         rtt + 0.05 + \
         R * rtt + \
         (fs * 8) / 100_000_000
-
-
-# Calculate transfer times for assignment 8
 
 for fs in [10_000, 20_000, 50_000]:
     print(f"fs={fs} t_transfer = {transfer_time(fs, 1, 0.05)} seconds")
