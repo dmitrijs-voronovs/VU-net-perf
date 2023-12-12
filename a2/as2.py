@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[7]:
 
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-# In[3]:
+# In[8]:
 
 
 # 1
 traffic = np.zeros(shape=46)
-traffic[0:11] = 5
-traffic[15:21] = 8
+traffic[0:10] = 5
+traffic[15:20] = 8
 traffic[25:46] = 2.5
 
 
-# In[16]:
+# In[9]:
 
 
 plt.step(range(len(traffic)), traffic, where='post', color='blue')
@@ -27,7 +27,7 @@ plt.xlabel('Time')
 plt.ylabel('Bitrate (Mbit/s)')
 
 
-# In[13]:
+# In[10]:
 
 
 # task 2
@@ -51,13 +51,14 @@ def plot_delay(delay):
     plt.title('Delay Induced by Shaper over Time')
     plt.grid(True)
     plt.show()
+    # plt.savefig('delay.png')
 
 shaping_rate = 4  # Peak rate in Mbit/s
 delay = calculate_delay(traffic, shaping_rate)
 plot_delay(delay)
 
 
-# In[14]:
+# In[12]:
 
 
 # task 3
@@ -66,12 +67,19 @@ import numpy as np
 
 def get_shaped_traffic(traffic, shaping_rate):
     shaped_traffic = np.zeros(len(traffic))
-    for i in range(1, len(traffic)):
-        if traffic[i] > shaping_rate:
+    accumulated_arr = np.zeros(len(traffic) + 1)
+    accumulated = 0
+    for i in range(len(traffic)):
+        total_traffic = traffic[i] + accumulated
+        if total_traffic > shaping_rate:
             shaped_traffic[i] = shaping_rate
+            accumulated += traffic[i] - shaping_rate
         else:
-            shaped_traffic[i] = traffic[i]
-    return shaped_traffic
+            shaped_traffic[i] = total_traffic
+            accumulated = 0
+        # accumulated_arr[i+1] = accumulated / shaping_rate
+        accumulated_arr[i+1] = accumulated
+    return (shaped_traffic, accumulated_arr)
 
 def plot_shaped_traffic(traffic, shaped_traffic):
     plt.step(range(len(traffic)), shaped_traffic, color='green')
@@ -80,13 +88,23 @@ def plot_shaped_traffic(traffic, shaped_traffic):
     plt.title('Bitrate of Traffic after Shaping over Time')
     plt.grid(True)
     plt.show()
+    # plt.savefig('shaped_traffic.png')
+
+def plot_delay(delay):
+    plt.step(range(len(delay)), delay, color='red')
+    plt.xlabel('Time')
+    plt.ylabel('Delay (Mbits)')
+    plt.title('Delay Induced by Shaper over Time')
+    plt.grid(True)
+    plt.show()
 
 shaping_rate = 4
-shaped_traffic = get_shaped_traffic(traffic, shaping_rate)
+(shaped_traffic, delay) = get_shaped_traffic(traffic, shaping_rate)
 plot_shaped_traffic(traffic, shaped_traffic)
+plot_delay(delay)
 
 
-# In[17]:
+# In[30]:
 
 
 # task 4
@@ -97,7 +115,7 @@ shaped_traffic = get_shaped_traffic(traffic, shaping_rate)
 plot_shaped_traffic(traffic, shaped_traffic)
 
 
-# In[19]:
+# In[31]:
 
 
 # task 5
@@ -130,7 +148,7 @@ policed_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
 plot_policed_traffic(traffic, policed_traffic)
 
 
-# In[20]:
+# In[32]:
 
 
 # task 6
@@ -167,7 +185,7 @@ policed_traffic = apply_sla_policing(traffic, leak_rate, burst_tolerance)
 plot_sla_compliance(traffic, policed_traffic)
 
 
-# In[21]:
+# In[33]:
 
 
 # task 7
