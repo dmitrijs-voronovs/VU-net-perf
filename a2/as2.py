@@ -27,234 +27,167 @@ plt.xlabel('Time')
 plt.ylabel('Bitrate (Mbit/s)')
 
 
-# In[10]:
+# In[59]:
 
 
 # task 2
-def calculate_delay(traffic, shaping_rate):
-    water_level = np.zeros(len(traffic))
-    delay = np.zeros(len(traffic))
-
-    for i in range(1, len(traffic)):
-        if traffic[i] > shaping_rate:
-            water_level[i] = water_level[i - 1] + (traffic[i] - shaping_rate)
+def get_shaped_traffic(traffic, shaping_rate):
+    shaped_traffic = np.zeros(len(traffic) + 1)
+    delay = np.zeros(len(traffic) + 1)
+    total_delay = 0
+    for i in range(len(traffic)):
+        total_traffic = traffic[i] + total_delay
+        if total_traffic > shaping_rate:
+            shaped_traffic[i+1] = shaping_rate
+            total_delay += traffic[i] - shaping_rate
         else:
-            water_level[i] = max(0, water_level[i - 1] - shaping_rate)
-        delay[i] = water_level[i] / shaping_rate
+            shaped_traffic[i+1] = total_traffic
+            total_delay = 0
+        delay[i+1] = total_delay
+    return shaped_traffic, delay
 
-    return delay
-
-def plot_delay(delay):
+def plot_delay(delay, name):
     plt.step(range(len(delay)), delay, color='red')
     plt.xlabel('Time')
-    plt.ylabel('Delay (ms)')
+    plt.ylabel('Delay (Mbit)')
     plt.title('Delay Induced by Shaper over Time')
     plt.grid(True)
+    plt.savefig(name)
     plt.show()
-    # plt.savefig('delay.png')
 
 shaping_rate = 4  # Peak rate in Mbit/s
-delay = calculate_delay(traffic, shaping_rate)
-plot_delay(delay)
+shaped_traffic, delay = get_shaped_traffic(traffic, shaping_rate)
+plot_delay(delay, "2.delay.png")
 
 
-# In[12]:
+# In[60]:
 
 
 # task 3
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_shaped_traffic(traffic, shaping_rate):
-    shaped_traffic = np.zeros(len(traffic))
-    accumulated_arr = np.zeros(len(traffic) + 1)
-    accumulated = 0
-    for i in range(len(traffic)):
-        total_traffic = traffic[i] + accumulated
-        if total_traffic > shaping_rate:
-            shaped_traffic[i] = shaping_rate
-            accumulated += traffic[i] - shaping_rate
-        else:
-            shaped_traffic[i] = total_traffic
-            accumulated = 0
-        # accumulated_arr[i+1] = accumulated / shaping_rate
-        accumulated_arr[i+1] = accumulated
-    return (shaped_traffic, accumulated_arr)
-
-def plot_shaped_traffic(traffic, shaped_traffic):
-    plt.step(range(len(traffic)), shaped_traffic, color='green')
+def plot_shaped_traffic(traffic, shaped_traffic, name):
+    plt.step(range(len(traffic) + 1), shaped_traffic, color='green')
     plt.xlabel('Time')
     plt.ylabel('Bitrate (Mbit/s)')
     plt.title('Bitrate of Traffic after Shaping over Time')
     plt.grid(True)
-    plt.show()
-    # plt.savefig('shaped_traffic.png')
-
-def plot_delay(delay):
-    plt.step(range(len(delay)), delay, color='red')
-    plt.xlabel('Time')
-    plt.ylabel('Delay (Mbits)')
-    plt.title('Delay Induced by Shaper over Time')
-    plt.grid(True)
+    plt.savefig(name)
     plt.show()
 
-shaping_rate = 4
-(shaped_traffic, delay) = get_shaped_traffic(traffic, shaping_rate)
-plot_shaped_traffic(traffic, shaped_traffic)
-plot_delay(delay)
+plot_shaped_traffic(traffic, shaped_traffic, "3.bitrate-after-shaving.png")
 
 
-# In[30]:
+# In[61]:
 
 
 # task 4
 shaping_rate = 2
-delay = calculate_delay(traffic, shaping_rate)
-plot_delay(delay)
-shaped_traffic = get_shaped_traffic(traffic, shaping_rate)
-plot_shaped_traffic(traffic, shaped_traffic)
+shaped_traffic, delay = get_shaped_traffic(traffic, shaping_rate)
+plot_delay(delay, "4.delay.png")
+plot_shaped_traffic(traffic, shaped_traffic, "4.bitrate-after-shaving.png")
 
 
-# In[31]:
+# In[62]:
 
 
-# task 5
+# task 5 and 6
 def apply_policing(traffic, leak_rate, burst_tolerance):
-    policed_traffic = np.zeros(len(traffic))
-    bucket_level = 0
+    conforming_traffic = np.zeros(len(traffic) + 1)
+    nonconforming_traffic = np.zeros(len(traffic) + 1)
+    bucket_level = burst_tolerance  # bucket starts full
 
     for i in range(len(traffic)):
-        if traffic[i] <= leak_rate + bucket_level:
-            policed_traffic[i] = traffic[i]
-            bucket_level = max(0, bucket_level + traffic[i] - leak_rate)
-        else:
-            policed_traffic[i] = leak_rate + bucket_level
-            bucket_level = burst_tolerance
+        bucket_level = min(bucket_level + leak_rate, burst_tolerance)
+        bucket_level_used = min(bucket_level, traffic[i])
+        bucket_level -= bucket_level_used
+        conforming_traffic[i + 1] += bucket_level_used
+        nonconforming_traffic[i + 1] += traffic[i] - conforming_traffic[i + 1]
 
-    return policed_traffic
+    return (conforming_traffic, nonconforming_traffic)
 
-def plot_policed_traffic(traffic, policed_traffic):
-    plt.step(range(len(traffic)), policed_traffic, color='orange')
+
+# Plot for task 5
+def plot_policed_traffic(policed_traffic, file='a2q5.png'):
+    plt.step(range(len(policed_traffic)), policed_traffic, color='blue')
     plt.xlabel('Time')
     plt.ylabel('Bitrate (Mbit/s)')
     plt.title('Bitrate of Traffic after Policing over Time')
     plt.grid(True)
+    plt.savefig(file)
     plt.show()
 
-leak_rate = 4
-burst_tolerance = 1 * 8 * 1024  # Burst tolerance in Mbit (1 Mbyte = 8 Mbit)
 
-policed_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
-plot_policed_traffic(traffic, policed_traffic)
-
-
-# In[32]:
-
-
-# task 6
-def apply_sla_policing(traffic, leak_rate, burst_tolerance):
-    policed_traffic = np.zeros(len(traffic))
-    bucket_level = 0
-
-    for i in range(len(traffic)):
-        if traffic[i] <= leak_rate + bucket_level:
-            policed_traffic[i] = traffic[i]
-            bucket_level = max(0, bucket_level + traffic[i] - leak_rate)
-        else:
-            policed_traffic[i] = leak_rate + bucket_level
-            bucket_level = burst_tolerance
-
-    return policed_traffic
-
-def plot_sla_compliance(traffic, policed_traffic):
-    conforming_traffic = np.where(traffic <= policed_traffic, traffic, np.nan)
-    non_conforming_traffic = np.where(traffic > policed_traffic, traffic, np.nan)
-
-    plt.plot(range(len(traffic)), conforming_traffic, 'bo', label='Conforming SLA')
-    plt.plot(range(len(traffic)), non_conforming_traffic, 'ro', label='Non-Conforming SLA')
+# Plot for task 6
+def plot_conforming_v_nonconforming_traffic(conforming_traffic, nonconforming_traffic, file='a2q6.png'):
+    plt.step(range(len(conforming_traffic)), conforming_traffic, color='blue', label='Conforming traffic')
+    plt.step(range(len(nonconforming_traffic)), nonconforming_traffic, '--', color='red', label='Nonconforming traffic')
     plt.xlabel('Time')
     plt.ylabel('Bitrate (Mbit/s)')
-    plt.title('Conforming and Non-Conforming Traffic over Time')
+    plt.title('Conforming and Nonconforming Traffic over Time')
     plt.legend()
     plt.grid(True)
+    plt.savefig(file)
     plt.show()
 
-leak_rate = 4  # Leak rate in Mbit/s
-burst_tolerance = 1 * 8 * 1024  # Burst tolerance in Mbit (1 Mbyte = 8 Mbit)
-policed_traffic = apply_sla_policing(traffic, leak_rate, burst_tolerance)
-plot_sla_compliance(traffic, policed_traffic)
+
+leak_rate = 4
+burst_tolerance = 1 * 8  # Burst tolerance in Mbit (1 Mbyte = 8 Mbit)
+
+conforming_traffic, nonconforming_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
+plot_policed_traffic(conforming_traffic)
+plot_conforming_v_nonconforming_traffic(conforming_traffic, nonconforming_traffic)
 
 
-# In[33]:
+# In[63]:
 
 
-# task 7
+# Task 7
 leak_rate = 2
-burst_tolerance = 1 * 8 * 1024  # Burst tolerance in Mbit (1 Mbyte = 8 Mbit)
-
-policed_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
-plot_policed_traffic(traffic, policed_traffic)
-
-policed_traffic = apply_sla_policing(traffic, leak_rate, burst_tolerance)
-plot_sla_compliance(traffic, policed_traffic)
+conforming_traffic, nonconforming_traffic = apply_policing(traffic, leak_rate, burst_tolerance)
+plot_policed_traffic(conforming_traffic, file='a2q7a.png')
+plot_conforming_v_nonconforming_traffic(conforming_traffic, nonconforming_traffic, file='a2q7b.png')
 
 
-# In[72]:
+# In[66]:
 
 
-# task 8
-# Given parameters
-RTT = 50  # Round-Trip Time in milliseconds
-receive_CW_size = 256 * 1024  # Receive CW size in Bytes
-bandwidth = 100 * 10**6  # Bandwidth in bits per second
-MSS = 1460  # Maximum Segment Size in Bytes
-processing_time = 50  # Request processing time in milliseconds
-
-# Convert RTT to seconds
-RTT_sec = RTT / 1000  # Convert milliseconds to seconds
-
-# Calculate initial CW size in bytes
-initial_window = 1
-initial_CW_size = MSS * initial_window
-
-# Calculate effective bandwidth in bytes per second
-effective_bandwidth = bandwidth / 8  # Convert bits to Bytes
-
-# Function to calculate transfer time for a given file size
-def calculate_transfer_time(file_size):
-    segments = (file_size + processing_time) / MSS  # Calculate the number of segments needed
-    transfer_time = RTT_sec * ((segments - initial_window) / initial_window + 1)  # Calculate transfer time in seconds
-    return transfer_time
-
-def print_transfer_times(file_sizes):
-    for file_size in file_sizes:
-        transfer_time = calculate_transfer_time(file_size)
-        print(f"Transfer time for {file_size / 1024} KB file: {transfer_time:.5f} seconds")
-
-file_sizes = [size * 1024 for size in [10, 20, 50]]
-print_transfer_times(file_sizes)
+import math
+def ceildiv(a, b):
+    return -(-a // b)
 
 
-# In[33]:
+# Define formula for transfer time
+def transfer_time(fs, cw_start, rtt):
+    S = ceildiv(fs, 1_460)
+    R = math.floor(math.log2(ceildiv(S, cw_start)) + 1)
+    print(f"S={S} R={R}")
+
+    return \
+        rtt + 0.05 + \
+        R * rtt + \
+        (fs * 8) / 100_000_000
+
+
+# Calculate transfer times for assignment 8
+
+for fs in [10_000, 20_000, 50_000]:
+    print(f"fs={fs} t_transfer = {transfer_time(fs, 1, 0.05)} seconds")
+
+
+# In[69]:
 
 
 # task 9
-initial_window = 5
-print_transfer_times(file_sizes)
+for fs in [10_000, 20_000, 50_000]:
+    print(f"fs={fs} t_transfer = {transfer_time(fs, 5, 0.05)} seconds")
 
 
-# In[71]:
+# In[70]:
 
 
 #task 10
-RTT = 100
-RTT_sec = RTT / 1000
-
-print_transfer_times(file_sizes)
-
-
-# In[ ]:
-
-
-# task 11
+for fs in [10_000, 20_000, 50_000]:
+    print(f"fs={fs} t_transfer = {transfer_time(fs, 1, 0.1)} seconds")
 
